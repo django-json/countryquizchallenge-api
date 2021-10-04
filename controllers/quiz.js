@@ -26,22 +26,22 @@ const transformData = (data, category) => {
 
 		const otherOptions = shuffledData
 			.slice(randomNumber, randomNumber + 3)
-			.map((country) => country.name); //Get other 3 random options
-		const options = shuffle([...otherOptions, country.name]);
+			.map((country) => country.name.common); //Get other 3 random options
+		const options = shuffle([...otherOptions, country.name.common]);
 
 		return category === "capital"
 			? {
 					id: index,
 					question: `${country.capital} is the capital of?`,
 					options,
-					answer: country.name,
+					answer: country.name.common,
 			  }
 			: {
 					id: index,
 					question: `Which country does this flag belong to?`,
 					options,
-					answer: country.name,
-					flag_link: country.flag,
+					answer: country.name.common,
+					flag_link: country.flags.svg,
 			  };
 	});
 };
@@ -51,11 +51,12 @@ const getQuiz = (axios, redisClient) => (req, res) => {
 	const category = req.params.category;
 
 	axios
-		.get("https://restcountries.eu/rest/v2/all")
+		.get("https://restcountries.com/v3.1/all")
 		.then((response) => {
-			//Store data to redis 86400
+			//Store data to redis
+			const ONE_DAY_EXPIRATION = 86400;
 			redisClient.set(req.route.path, JSON.stringify(response.data));
-			redisClient.expire(req.route.path, 86400); //1 day expiration
+			redisClient.expire(req.route.path, ONE_DAY_EXPIRATION);
 			const transformedData = transformData(response.data, category);
 
 			res.status(200).json(transformedData);
