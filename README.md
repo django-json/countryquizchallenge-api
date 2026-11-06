@@ -1,3 +1,6 @@
+# ⚠️ ARCHIVED PROJECT NOTICE
+This repository has been archived and is no longer maintained. 
+
 ### Built With
 
 - [Express.js](https://www.npmjs.com/package/express)
